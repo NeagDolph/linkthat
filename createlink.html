@@ -1,0 +1,123 @@
+<!doctype HTML>
+<html>
+<head>
+	<title>Create Link</title>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/css/iziModal.min.css">
+<style>
+	@import url('https://fonts.googleapis.com/css?family=Gugi');
+	@import url('https://fonts.googleapis.com/css?family=Montserrat');
+	@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+	
+	.link {
+		font-size: 26px;
+		text-align: center;
+		font-family: 'Gugi', Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif"; 
+		color: lightgoldenrodyellow;
+		cursor: pointer;
+	}
+	
+	.link:visited {
+		color: lightgoldenrodyellow;
+	}
+	
+	.linkContent {
+		margin-top: 30px;
+	}
+	
+	.thumbnail {
+		margin-top: 30px;
+		border: solid 5px rgba(49,49,49,0.78);
+		width: 400px;
+		height: 400px;
+	}
+	
+	#modal-alert2 {
+		max-height: 600px;
+		background-color: #767676;
+	}
+	
+	.container {
+		width: 100%;
+		height: 100%;
+		margin-top: 5em;
+	}
+	
+	.url {
+		margin-top: 25px;
+		margin-bottom: 60px;
+		font-size: 70px;
+		text-align: center;
+		width: 16em;
+		height: 3em;
+		margin-left: calc(50vw - 8em);
+	}
+	
+	.create {
+		width: 8em;
+		margin-left: calc(50vw - 4em);
+		height: 2.5em;
+		font-size: 4em;
+		background-color: #7FB195;
+		font-family: Montserrat, Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+	}
+	
+	.copied {
+		opacity: 0;
+		color: white;
+		font-family: 'Open Sans', Baskerville, 'Palatino Linotype', Palatino, 'Century Schoolbook L', 'Times New Roman', 'serif'
+	}
+</style>
+</head>
+<body>
+	<a class="statLink" href="/stats">Check your URL stats</a>
+	<div class="container">
+		<input class="url" placeholder="Your URL"/>
+		<br>
+		<br>
+		<button class="create">Create!</button>
+	</div>
+	<div id="modal-alert2" data-iziModal-group="alert"></div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
+<script>
+	$("#modal-alert2").iziModal();
+	
+	$(".create").click(function() {
+		url = $(".url").val();
+		if (url != "") {
+			$(".url").val("");
+			$.ajax({
+				url: "/create",
+				method: "POST",
+				data: {"url": url},
+				success: function(data) {
+					thedata = data.split("&--$%^&##D");
+					openlink(thedata[0], thedata[1], thedata[2])
+				}
+			});
+		}
+	})
+	
+	function openlink(data, data1, data2) {
+		thedata = window.location + data
+		$("#modal-alert2").html('<div class="linkContent"><p class="link" data-clipboard-target=".link">' + thedata + '</p><p class="copied">Click to copy</p><br><img class="thumbnail" src="' + data1 + '"/></div><p class="statCode">' + data2 + '</p>');
+		$("#modal-alert2").css({"text-align": "center"})
+		$("#modal-alert2").iziModal('open');
+	}
+	
+	var clipboard = new ClipboardJS('.link');
+	
+	clipboard.on('success', function(e) {
+		$(".copied").text("Link Copied!");
+		$(".copied").animate({opacity: 1}, 1500, function() {
+			$(".copied").animate({opacity: 0}, 1500, function() {
+				$(".copied").text("Goodbye");
+			});
+		});
+
+		e.clearSelection();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype HTML>
+<html>
+<head>
+	<title>Check stats</title>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/css/iziModal.min.css">
+<style>
+	@import url('https://fonts.googleapis.com/css?family=Gugi');
+	@import url('https://fonts.googleapis.com/css?family=Montserrat');
+	@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+	
+	::-webkit-input-placeholder { 
+		text-align:center; 
+	}
+	
+	input:-moz-placeholder {
+		text-align:center; 
+	}
+	
+	td {
+		border-right: solid 1px #605959;
+		border-left: solid 1px #605959;
+	}
+	
+	.link {
+		font-size: 26px;
+		text-align: center;
+		font-family: 'Gugi', Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif"; 
+		color: lightgoldenrodyellow;
+		cursor: pointer;
+	}
+	
+	.link:visited {
+		color: lightgoldenrodyellow;
+	}
+	
+	.linkContent {
+		margin-top: 30px;
+	}
+	
+	.thumbnail {
+		margin-top: 30px;
+		border: solid 5px rgba(49,49,49,0.78);
+		width: 400px;
+		height: 400px;
+	}
+	
+	#modal-alert2 {
+		max-height: 50px;
+	}
+	
+	.statContainer {
+		width: 100%;
+		height: 100%;
+	}
+	
+	.statFade {
+		margin-top: 5em;
+	}
+	
+	.code {
+		margin-top: 25px;
+		margin-bottom: 60px;
+		font-size: 70px;
+		text-align: center;
+		width: 16em;
+		height: 3em;
+		margin-left: calc(50vw - 8em);
+	}
+	
+	.check {
+		width: 8em;
+		margin-left: calc(50vw - 4em);
+		height: 2.5em;
+		font-size: 4em;
+		background-color: #7FB195;
+		font-family: Montserrat, Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+	}
+	
+	.copied {
+		opacity: 0;
+		color: white;
+		font-family: 'Open Sans', Baskerville, 'Palatino Linotype', Palatino, 'Century Schoolbook L', 'Times New Roman', 'serif'
+	}
+	
+	.container {
+		width: 80%;
+		display: none;
+		margin: 0 auto;
+	}
+	
+	.newStat {
+		height: 8em;
+		width: 100%;
+		display: none;
+		
+	}
+	
+	.newCode {
+		width: 40%;
+		height: 3em;
+		margin: 1em auto; 
+	}
+	
+	.newCheck {
+		width: 6em;
+		text-align: center;
+		height: 4em;
+		background-color: #7FB195;
+		font-family: Montserrat, Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+	}
+	
+	.itemVisit {
+		height: 120px;
+		width: 100%;
+		table-layout: auto;
+		display: block;
+		border-bottom-color: rgba(0,0,0,0.00);
+	}
+	
+	.namesContainer {
+		width: 100%;
+		table-layout: auto;
+		display: block;
+		height: 80px;
+	}
+	
+	.itemName {
+		width: 1%;
+		margin: 0 auto;
+		height: 100%;
+		text-align: center;
+	}
+	
+	.item {
+		height: 100%;
+		text-align: center;
+		width: 1%;
+	}
+	
+	.container {
+		border: solid 1px black;
+	}
+</style>
+</head>
+<body>
+	<div class="statContainer">
+		<div class="statFade">
+			<input class="code" placeholder="Check your stats"/>
+			<br>
+			<br>
+			<button class="check">Check!</button>
+		</div>
+		<div class="newStat">
+			<input class="newCode" placeholder="Check again"/>
+			<div class="newCheck">Check</div>
+		</div>
+	</div>
+	<div class="wrapper">
+		<table class="container">
+			<tr class="namesContainer">
+				<td class="itemName" id="date">Time</td>
+				<td class="itemName" id="location">Location</td>
+				<td class="itemName" id="clickedThrough">From</td>
+			</tr>
+		</table>
+	</div>
+	<div id="modal-alert2" aria-hidden="true" aria-labelledby="modal-alert2" role="dialog" class="iziModal" style="z-index: 999; border-radius: 3px; border-bottom: 3px solid rgb(189, 91, 91); overflow: hidden; max-width: 600px;"><div class="iziModal-header" style="background: rgb(189, 91, 91);"><i class="iziModal-header-icon icon-power_settings_new"></i><div class="iziModal-progressbar"><div style="background-color:rgba(255,255,255,0.5)"></div></div><h2 class="iziModal-header-title">Oh no!</h2><div class="iziModal-header-buttons"><a href="javascript:void(0)" class="iziModal-button iziModal-button-close" data-izimodal-close=""></a></div></div><div class="iziModal-wrap"><div class="iziModal-content" style="padding: 0px;"></div></div></div>
+	
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
+<script>
+	var interval = "";
+	$("#modal-alert2").iziModal();
+	
+	$(".check").click(function() {
+		var code = $(".code").val();
+		if (code != "") {
+			$.ajax({
+				url: "/check",
+				method: "POST",
+				data: {"code": code},
+				success: function(data) {
+					if (data == "err0") {
+						error("Code does not exist!");	
+					} else if (data == "err1") {
+						error("No data captured yet");
+					} else {
+						thedata = data.split("&--$%^&##D");
+						display(thedata[0], thedata[1], "true");
+						interval = setInterval(checkajax, 800, code);
+					}
+				}
+			});
+		}
+	});
+	
+	
+	
+	$(".newCheck").click(function() {
+		var code = $(".newCode").val();
+		if (code != "") {
+			$.ajax({
+				url: "/check",
+				method: "POST",
+				data: {"code": code},
+				success: function(data) {
+					if (data == "err0") {
+						error("Code does not exist!");	
+					} else if (data == "err1") {
+						error("No data captured yet");
+					} else {
+						thedata = data.split("&--$%^&##D");
+						display(thedata[0], thedata[1], "false");
+						clearInterval(interval);
+						interval = setInterval(checkajax, 800, code);
+						setTimeout(wait, 500);
+					}
+				}
+			});
+		}
+	});
+	
+	
+	
+	
+	function display(data, data1, animate) {
+		if (animate == "true") {
+			$(".newCode").val($(".code").val());
+			$(".statFade").animate({"height": "1px", "opacity": "0.07"}, 1500, function() {
+				$(".statFade").hide();
+				$(".newStat").css({"display": "flex", "justify-content:": "space-between"});
+				$(".newStat").css("opacity", "0");
+				$(".newStat").animate({"opacity": "1"}, 500);
+			});
+			$("body").css("height", "150%");
+			var staturl = window.location.origin + "/" + data;
+			$("body").append('<h1 class="urlname">' + staturl + "</h1>");
+			$(".container").show();
+		} else {
+			$(".itemVisit").remove();
+			$(".item").remove();
+			$(".urlname").remove();
+			var staturl = window.location.origin + "/" + data;
+			$("body").append('<h1 class="urlname">' + staturl + "</h1>");
+		}
+		statdata = data1.split("{|}");
+	
+		for (var i in statdata) {
+			$(".container").append('<tr class="itemVisit" id="visit' + i + '"></tr>');
+			for (var item in statdata[i].split("{}")) {
+				console.log(statdata[i])
+				$("#visit" + i).append('<td class="item">' + statdata[i].split("{}")[item] + '</td>');
+			}
+			
+		}
+	}
+	
+	function error(data) {
+		$(".iziModal-header-title").text(data);
+		$("#modal-alert2").iziModal("open");
+	}
+	
+	var olddata = "";
+	function checkajax(code) {
+		$.ajax({
+			url: "/check",
+			method: "POST",
+			data: {"code": code},
+			success: function(data) {
+				if (olddata != data) {
+					if (data == "err0") {
+							error("Code does not exist!");	
+					} else if (data == "err1") {
+							error("No data captured yet");
+					} else {
+						thedata = data.split("&--$%^&##D");
+						display(thedata[0], thedata[1], "false");
+					}
+					olddata = data
+				}
+			}	
+		})
+	}
+</script>
+</body>
+</html>
